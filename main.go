@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -25,12 +26,31 @@ func createBook(name string, author string) Book {
 	}
 }
 
+func emptyBook() Book {
+	return createBook("", "")
+}
+
 var books = []Book{
 	createBook("Deep work", "Carl Jung"),
 	createBook("The Art of Computer Programming", "Donald Knuth"),
 }
 
-
+func addBook(w http.ResponseWriter, r *http.Request) {
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "failed to read bytes", http.StatusInternalServerError)
+		return
+	}
+	newBook := emptyBook()
+	err = json.Unmarshal(bytes, &newBook)
+	if err != nil {
+		http.Error(w, "failed to unmarshall", http.StatusInternalServerError)
+		return
+	}
+	newSet := append(books, newBook)
+	books = newSet
+	json.NewEncoder(w).Encode(books)
+}
 
 func listBooks(writer http.ResponseWriter, request *http.Request) {
 	writer.WriteHeader(http.StatusOK)
@@ -56,6 +76,7 @@ func main() {
 
 	router.HandleFunc("/", rootHandler)
 	router.HandleFunc("/books", listBooks).Methods(http.MethodGet)
+	router.HandleFunc("/books", addBook).Methods(http.MethodPost)
 
 	router.Use(contentTypeMiddleWare)
 
