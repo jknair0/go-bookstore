@@ -1,39 +1,47 @@
 package db
 
 import (
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/stretchr/testify/assert"
 	"tech.jknair/bookstore/db/schema"
 	"testing"
 )
 
-func TestInMemoryDb_SaveBooks(t *testing.T) {
-	subject := CreateInMemoryDb()
+var subject *InMemoryDb
 
+func TestMain(m *testing.M) {
+	subject = CreateInMemoryDb()
+	m.Run()
+	subject = nil
+}
+
+func TestInMemoryDb_SaveBooks(t *testing.T) {
+	assert.Len(t, subject.GetBooks(), 0)
 	if len(subject.GetBooks()) != 0 {
 		t.Errorf("initial list is supposed to be empty")
 		return
 	}
-
-	input := schema.CreateBookSchema("Harry Potter", "JK Rowling")
-
-	uidArray := subject.SaveBooks([]schema.BookSchema{input})
-
-	if len(uidArray) != 1 {
-		t.Errorf("empty uid returned after save expected uid of lenght 1")
-		return
-	}
-
+	sampleBook1 := sampleBook()
+	uidArray := subject.SaveBooks([]*schema.BookSchema{&sampleBook1})
+	assert.Len(t, uidArray, 1)
 	booksList := subject.GetBooks()
-	booksLen := len(booksList)
-	if booksLen != 1 {
-		t.Errorf("expected books list of lenght 1 received %v", booksLen)
-		return
-	}
-
+	assert.Len(t, booksList, 1)
 	actualResult := booksList[0]
-	if !cmp.Equal(actualResult, input, cmpopts.IgnoreFields(schema.BookSchema{}, "Uuid")) {
-		t.Errorf("\n expected %#v \n actual   %#v ", input, actualResult)
-	}
+	assert.Same(t, &sampleBook1, actualResult)
+}
 
+func sampleBook() schema.BookSchema {
+	return schema.CreateBookSchema("Harry Potter", "JK Rowling")
+}
+
+func TestInMemoryDb_DeleteBook(t *testing.T) {
+	sampleBook := sampleBook()
+	assert.Empty(t, subject.GetBooks())
+	savedUuid := subject.SaveBooks([]*schema.BookSchema{ &sampleBook })
+	assert.Len(t, savedUuid, 1)
+	assert.Len(t, subject.GetBooks(), 1)
+	book, err := subject.DeleteBook(savedUuid[0])
+	assert.Nil(t, err)
+	assert.NotNil(t, book)
+	assert.Same(t, &sampleBook, book)
+	assert.Empty(t, subject.GetBooks())
 }
