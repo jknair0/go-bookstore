@@ -1,24 +1,34 @@
 package db
 
+import (
+	"github.com/google/uuid"
+	"tech.jknair/bookstore/db/schema"
+	"time"
+)
+
 type InMemoryDb struct {
-	booksStore []BookSchema
+	booksStore []*schema.BookSchema
 }
 
-func Create() InMemoryDb {
-	return InMemoryDb{
-		booksStore: []BookSchema{},
+func CreateInMemoryDb() *InMemoryDb {
+	return &InMemoryDb{
+		booksStore: []*schema.BookSchema{},
 	}
 }
 
-func (i *InMemoryDb) SaveBooks(book []BookSchema) {
-	i.booksStore = append(i.booksStore, book...)
+func (i *InMemoryDb) SaveBooks(books []*schema.BookSchema) []string {
+	booksUid := make([]string, len(books))
+	for index := range books {
+		uid := uuid.New().String()
+		books[index].Uuid = uid
+		books[index].CreatedAt = time.Now().Unix()
+		booksUid[index] = uid
+	}
+	i.booksStore = append(i.booksStore, books...)
+	return booksUid
 }
 
-func (i *InMemoryDb) GetBooks() []BookSchema {
-	return i.booksStore
-}
-
-func (i *InMemoryDb) DeleteBook(uuid string) *BookSchema {
+func (i *InMemoryDb) DeleteBook(uuid string) (*schema.BookSchema, error) {
 	deleteIndex := -1
 	for index, book := range i.booksStore {
 		if book.Uuid == uuid {
@@ -26,17 +36,25 @@ func (i *InMemoryDb) DeleteBook(uuid string) *BookSchema {
 			break
 		}
 	}
+	var deletedValue *schema.BookSchema
 	if deleteIndex == -1 {
-		return nil
+		return deletedValue, nil
 	}
-	var deletedValue *BookSchema = nil
 	if deleteIndex != -1 {
-		deletedValue = &i.booksStore[deleteIndex]
+		deletedValue = i.booksStore[deleteIndex]
 		i.booksStore = append(i.booksStore[:deleteIndex], i.booksStore[deleteIndex+1:]...)
 	}
-	return deletedValue
+	return deletedValue, nil
 }
 
-func (i *InMemoryDb) UpdateBook(book BookSchema) *BookSchema {
+func (i *InMemoryDb) GetBooks() []*schema.BookSchema {
+	return i.booksStore
+}
+
+func (i *InMemoryDb) GetBook(uuid string) (*schema.BookSchema, error) {
+	panic("Not implemented")
+}
+
+func (i *InMemoryDb) UpdateBook(book *schema.BookSchema) (*schema.BookSchema, error) {
 	panic("implement me")
 }

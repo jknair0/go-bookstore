@@ -1,20 +1,17 @@
 package db
 
-type BookSchema struct {
-	Uuid string
-	Name string
-	Author string
-	CreatedAt int64
-}
+import "tech.jknair/bookstore/db/schema"
 
 type Database interface {
 
-	SaveBooks(book []BookSchema)
+	SaveBooks(books []*schema.BookSchema) []string
 
-	GetBooks() []BookSchema
+	GetBooks() []*schema.BookSchema
 
-	DeleteBook(uuid string) *BookSchema
+	GetBook(uuid string) (*schema.BookSchema, error)
 
-	UpdateBook(book BookSchema) *BookSchema
+	DeleteBook(uuid string) (*schema.BookSchema, error)
+
+	UpdateBook(book *schema.BookSchema) (*schema.BookSchema, error)
 
 }
