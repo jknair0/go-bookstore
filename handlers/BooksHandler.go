@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"tech.jknair/bookstore/db"
 	"tech.jknair/bookstore/mapper"
@@ -14,11 +13,11 @@ import (
 type BooksHandler struct {
 	database   db.Database
 	router     *mux.Router
-	bookMapper mapper.BookMapper
+	bookMapper *mapper.BookMapper
 }
 
-func CreateBookHandler(database db.Database, router *mux.Router) BooksHandler {
-	return BooksHandler{
+func CreateBookHandler(database db.Database, router *mux.Router) *BooksHandler {
+	return &BooksHandler{
 		database: database,
 		router:   router,
 	}
@@ -48,7 +47,6 @@ func (b *BooksHandler) addBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("received: %s", requestBodyBytes)
 	if len(requestBodyBytes) == 0 {
 		http.Error(w, "No request params received", http.StatusBadRequest)
 		return

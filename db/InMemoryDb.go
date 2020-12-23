@@ -28,7 +28,7 @@ func (i *InMemoryDb) SaveBooks(books []*schema.BookSchema) []string {
 	return booksUid
 }
 
-func (i *InMemoryDb) DeleteBook(uuid string) (*schema.BookSchema, error) {
+func (i *InMemoryDb) DeleteBook(uuid string) *schema.BookSchema {
 	deleteIndex := -1
 	for index, book := range i.booksStore {
 		if book.Uuid == uuid {
@@ -38,23 +38,38 @@ func (i *InMemoryDb) DeleteBook(uuid string) (*schema.BookSchema, error) {
 	}
 	var deletedValue *schema.BookSchema
 	if deleteIndex == -1 {
-		return deletedValue, nil
+		return deletedValue
 	}
 	if deleteIndex != -1 {
 		deletedValue = i.booksStore[deleteIndex]
 		i.booksStore = append(i.booksStore[:deleteIndex], i.booksStore[deleteIndex+1:]...)
 	}
-	return deletedValue, nil
+	return deletedValue
 }
 
 func (i *InMemoryDb) GetBooks() []*schema.BookSchema {
 	return i.booksStore
 }
 
-func (i *InMemoryDb) GetBook(uuid string) (*schema.BookSchema, error) {
-	panic("Not implemented")
+func (i *InMemoryDb) GetBook(uuid string) *schema.BookSchema {
+	for _, book := range i.booksStore {
+		if book.Uuid == uuid {
+			return book
+		}
+	}
+	return nil
 }
 
-func (i *InMemoryDb) UpdateBook(book *schema.BookSchema) (*schema.BookSchema, error) {
-	panic("implement me")
+func (i *InMemoryDb) UpdateBook(book *schema.BookSchema) bool {
+	updatedIndex := -1
+	for index, bookItem := range i.booksStore {
+		if bookItem.Uuid == bookItem.Uuid {
+			updatedIndex = index
+		}
+	}
+	if updatedIndex == -1 {
+		return false
+	}
+	i.booksStore[updatedIndex] = book
+	return true
 }

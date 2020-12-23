@@ -17,13 +17,13 @@ func TestBooksHandler_AddBook(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	mockDatabase := testutils.CreateMockDatabase()
-	expectedArg := []schema.BookSchema{{
+	expectedArg := []*schema.BookSchema{{
 		Uuid:      "",
 		Name:      "Deep Work",
 		Author:    "Carl Jung",
 		CreatedAt: 0,
 	}}
-	mockDatabase.On("SaveBooks", expectedArg).Return("123")
+	mockDatabase.On("SaveBooks", expectedArg).Return([]string{"123"})
 
 	handler := CreateBookHandler(mockDatabase, &mux.Router{})
 	handler.addBook(recorder, r)
@@ -32,5 +32,5 @@ func TestBooksHandler_AddBook(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, recorder.Code, "invalid request code: %d", recorder.Code)
 	assert.NotEqual(t, 0, len(responseBody), "empty response body")
-	assert.Equal(t, string(responseBody), "[\"uuid-0\"]\n", "invalid response body: %s", string(responseBody))
+	assert.Equal(t, string(responseBody), "[\"123\"]\n", "invalid response body: %s", string(responseBody))
 }

@@ -8,10 +8,10 @@ type Database interface {
 
 	GetBooks() []*schema.BookSchema
 
-	GetBook(uuid string) (*schema.BookSchema, error)
+	GetBook(uuid string) *schema.BookSchema
 
-	DeleteBook(uuid string) (*schema.BookSchema, error)
+	DeleteBook(uuid string) *schema.BookSchema
 
-	UpdateBook(book *schema.BookSchema) (*schema.BookSchema, error)
+	UpdateBook(book *schema.BookSchema) bool
 
 }
