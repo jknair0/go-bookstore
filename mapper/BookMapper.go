@@ -13,28 +13,27 @@ func CreateBookMapper() *BookMapper {
 }
 
 func (b *BookMapper) ToData(domain ...*model.Book) []*schema.BookSchema {
-	var books []*schema.BookSchema
-	for _, item := range domain {
-		books = append(books, &schema.BookSchema{
+	books := make([]*schema.BookSchema, len(domain))
+	for index, item := range domain {
+		books[index] = &schema.BookSchema{
 			Uuid:      item.Uuid,
 			Name:      item.Name,
 			Author:    item.Author,
 			CreatedAt: item.CreatedAt,
-		})
+		}
 	}
 	return books
 }
 
-func (b *BookMapper) FromData(data ...*schema.BookSchema) model.Books {
-	var books model.Books
-	for _, item := range data {
-		dbObj := item
-		books = append(books, &model.Book{
-			Uuid:      dbObj.Uuid,
-			Name:      dbObj.Name,
-			Author:    dbObj.Author,
-			CreatedAt: dbObj.CreatedAt,
-		})
+func (b *BookMapper) FromData(data ...*schema.BookSchema) []*model.Book {
+	books := make([]*model.Book, len(data))
+	for index, item := range data {
+		books[index] = &model.Book{
+			Uuid:      item.Uuid,
+			Name:      item.Name,
+			Author:    item.Author,
+			CreatedAt: item.CreatedAt,
+		}
 	}
 	return books
 }

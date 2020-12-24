@@ -9,31 +9,38 @@ import (
 )
 
 func TestBookMapper_toData(t *testing.T) {
-	sliceLen := 6
+	t.Run("for non-empty list", func(t *testing.T) {
+		sliceLen := 6
 
-	var booksInput []*model.Book
-	for i := 0; i < sliceLen; i++ {
-		strInt := strconv.Itoa(i)
-		booksInput = append(booksInput, &model.Book{
-			Uuid:      "uuid" + strInt,
-			Name:      "name" + strInt,
-			Author:    "author" + strInt,
-			CreatedAt: int64(i),
-		})
-	}
-
-	result := CreateBookMapper().ToData(booksInput...)
-
-	for i, actualResult := range result {
-		strInt := strconv.Itoa(i)
-		expectedResult := &schema.BookSchema{
-			Uuid:      "uuid" + strInt,
-			Name:      "name" + strInt,
-			Author:    "author" + strInt,
-			CreatedAt: int64(i),
+		var booksInput []*model.Book
+		for i := 0; i < sliceLen; i++ {
+			strInt := strconv.Itoa(i)
+			booksInput = append(booksInput, &model.Book{
+				Uuid:      "uuid" + strInt,
+				Name:      "name" + strInt,
+				Author:    "author" + strInt,
+				CreatedAt: int64(i),
+			})
 		}
-		assert.Equal(t, expectedResult, actualResult)
-	}
+
+		result := CreateBookMapper().ToData(booksInput...)
+
+		for i, actualResult := range result {
+			strInt := strconv.Itoa(i)
+			expectedResult := &schema.BookSchema{
+				Uuid:      "uuid" + strInt,
+				Name:      "name" + strInt,
+				Author:    "author" + strInt,
+				CreatedAt: int64(i),
+			}
+			assert.Equal(t, expectedResult, actualResult)
+		}
+	})
+	t.Run("empty list", func(t *testing.T) {
+		booksInput := make([]*model.Book, 0)
+		result := CreateBookMapper().ToData(booksInput...)
+		assert.NotNil(t, result)
+	})
 }
 
 func TestBookMapper_fromData(t *testing.T) {

@@ -12,8 +12,6 @@ type Book struct {
 	CreatedAt int64  `json:"created_at"`
 }
 
-type Books []*Book
-
 func CreateBook(name string, author string) *Book {
 	return &Book{
 		Uuid:      "",
@@ -44,7 +42,7 @@ func (b *Book) EncodeBook() ([]byte, error) {
 	return jsonBytes, nil
 }
 
-func (books Books) EncodeBooks() ([]byte, error) {
+func EncodeBooks(books []*Book) ([]byte, error) {
 	jsonBytes, err := json.Marshal(books)
 	if err != nil {
 		return nil, err

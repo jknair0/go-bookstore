@@ -19,7 +19,8 @@ func (m *MockDatabase) SaveBooks(books []*schema.BookSchema) []string {
 }
 
 func (m *MockDatabase) GetBooks() []*schema.BookSchema {
-	panic("implement me")
+	args := m.Called()
+	return args.Get(0).([]*schema.BookSchema)
 }
 
 func (m *MockDatabase) GetBook(uuid string) *schema.BookSchema {

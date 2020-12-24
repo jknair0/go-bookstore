@@ -31,8 +31,11 @@ func getMuxRouter() *mux.Router {
 	muxRouter.StrictSlash(true)
 	muxRouter.Use(ContentTypeMiddleWare)
 	muxRouter.HandleFunc("/", rootHandler)
-	bookHandler := handlers.CreateBookHandler(bookDb, muxRouter.PathPrefix("/books").Subrouter())
+
+	booksRouter := muxRouter.PathPrefix("/books").Subrouter()
+	bookHandler := handlers.CreateBookHandler(bookDb, booksRouter)
 	bookHandler.Initialize()
+
 	return muxRouter
 }
 

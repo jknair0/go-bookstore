@@ -32,7 +32,7 @@ func (b *BooksHandler) listBooks(writer http.ResponseWriter, _ *http.Request) {
 	writer.WriteHeader(http.StatusOK)
 	books := b.database.GetBooks()
 	schemasArray := b.bookMapper.FromData(books...)
-	jsonBooks, err := schemasArray.EncodeBooks()
+	jsonBooks, err := model.EncodeBooks(schemasArray)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
