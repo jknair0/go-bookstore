@@ -8,14 +8,13 @@ import (
 	"tech.jknair/bookstore/handlers"
 )
 
-func GetRootRouter(bookDb db.Database) *mux.Router {
+func ApiRouter(bookDb db.Database) *mux.Router {
 	muxRouter := mux.NewRouter()
 	muxRouter.StrictSlash(true)
-	muxRouter.HandleFunc("/", indexHandler)
 	muxRouter.Use(LoggingMiddleWare)
-	muxRouter.Use(ContentTypeMiddleWare)
 
-	booksRouter := muxRouter.PathPrefix("/books").Subrouter()
+	booksRouter := muxRouter.PathPrefix("/api/books").Subrouter()
+	booksRouter.Use(ContentTypeMiddleWare)
 	bookHandler := handlers.CreateBookHandler(bookDb, booksRouter)
 	bookHandler.Initialize()
 
