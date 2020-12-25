@@ -6,12 +6,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	beforeEach "github.com/jknair0/beforeeach"
+	"github.com/jknair0/bookstore/db/schema"
+	"github.com/jknair0/bookstore/response"
+	"github.com/jknair0/bookstore/testutils"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"tech.jknair/bookstore/db/schema"
-	"tech.jknair/bookstore/response"
-	"tech.jknair/bookstore/testutils"
 	"testing"
 )
 

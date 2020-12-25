@@ -2,10 +2,10 @@ package routing
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/jknair0/bookstore/db"
+	"github.com/jknair0/bookstore/handlers"
 	"log"
 	"net/http"
-	"tech.jknair/bookstore/db"
-	"tech.jknair/bookstore/handlers"
 )
 
 func ApiRouter(bookDb db.Database) *mux.Router {

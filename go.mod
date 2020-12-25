@@ -1,4 +1,4 @@
-module tech.jknair/bookstore
+module github.com/jknair0/bookstore
 
 go 1.15
 

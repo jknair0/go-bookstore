@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/jknair0/bookstore/db"
+	"github.com/jknair0/bookstore/routing"
 	"log"
 	"net/http"
-	"tech.jknair/bookstore/db"
-	"tech.jknair/bookstore/routing"
 )
 
 var bookInMemoryDb = db.CreateInMemoryDb()

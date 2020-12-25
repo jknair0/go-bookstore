@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/jknair0/bookstore/db"
+	"github.com/jknair0/bookstore/mapper"
+	"github.com/jknair0/bookstore/model"
+	"github.com/jknair0/bookstore/response"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"tech.jknair/bookstore/db"
-	"tech.jknair/bookstore/mapper"
-	"tech.jknair/bookstore/model"
-	"tech.jknair/bookstore/response"
 )
 
 const RootRoute = "/"

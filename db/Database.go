@@ -1,6 +1,6 @@
 package db
 
-import "tech.jknair/bookstore/db/schema"
+import "github.com/jknair0/bookstore/db/schema"
 
 type Database interface {
 	SaveBooks(books []*schema.BookSchema) []string

@@ -1,8 +1,8 @@
 package mapper
 
 import (
-	"tech.jknair/bookstore/db/schema"
-	"tech.jknair/bookstore/model"
+	"github.com/jknair0/bookstore/db/schema"
+	"github.com/jknair0/bookstore/model"
 )
 
 type BookMapper struct {

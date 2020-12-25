@@ -1,8 +1,8 @@
 package testutils
 
 import (
+	"github.com/jknair0/bookstore/db/schema"
 	"github.com/stretchr/testify/mock"
-	"tech.jknair/bookstore/db/schema"
 )
 
 type MockDatabase struct {
