@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	beforeEach "github.com/jknair0/beforeeach"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -16,7 +17,7 @@ import (
 
 var mockDatabase *testutils.MockDatabase
 var subject *BooksHandler
-var runTest func(func())
+var it = beforeEach.Create(setUp, tearDown)
 
 func setUp() {
 	mockDatabase = testutils.CreateMockDatabase()
@@ -30,15 +31,9 @@ func tearDown() {
 	subject = nil
 }
 
-func TestMain(m *testing.M) {
-	runTest = testutils.CreateForEach(setUp, tearDown)
-	m.Run()
-	runTest = nil
-}
-
 func TestBooksHandler_AddBook(t *testing.T) {
 	t.Run("valid request body", func(t *testing.T) {
-		runTest(func() {
+		it(func() {
 			requestBody := bytes.NewBufferString(`{"name":"Deep Work","author":"Carl Jung"}`)
 			r, _ := http.NewRequest(http.MethodPost, RootRoute, requestBody)
 			recorder := httptest.NewRecorder()
@@ -55,7 +50,7 @@ func TestBooksHandler_AddBook(t *testing.T) {
 		})
 	})
 	t.Run("empty request body", func(t *testing.T) {
-		runTest(func() {
+		it(func() {
 			r, _ := http.NewRequest(http.MethodPost, RootRoute, nil)
 			recorder := httptest.NewRecorder()
 
@@ -67,7 +62,7 @@ func TestBooksHandler_AddBook(t *testing.T) {
 		})
 	})
 	t.Run("invalid request body", func(t *testing.T) {
-		runTest(func() {
+		it(func() {
 			requestBody := bytes.NewBufferString(`{"not_name":"sample","not_author":"sample-author"}`)
 			r, _ := http.NewRequest(http.MethodPost, RootRoute, requestBody)
 			recorder := httptest.NewRecorder()
@@ -83,7 +78,7 @@ func TestBooksHandler_AddBook(t *testing.T) {
 
 func TestBooksHandler_GetBooks(t *testing.T) {
 	t.Run("empty books", func(t *testing.T) {
-		runTest(func() {
+		it(func() {
 			r, _ := http.NewRequest(http.MethodGet, RootRoute, nil)
 			recorder := httptest.NewRecorder()
 			mockDatabase.On("GetBooks").Return([]*schema.BookSchema{})
@@ -96,7 +91,7 @@ func TestBooksHandler_GetBooks(t *testing.T) {
 		})
 	})
 	t.Run("non empty books", func(t *testing.T) {
-		runTest(func() {
+		it(func() {
 			r, _ := http.NewRequest(http.MethodGet, RootRoute, nil)
 			recorder := httptest.NewRecorder()
 			mockDatabase.On("GetBooks").Return([]*schema.BookSchema{sampleBookSchema()})
@@ -112,7 +107,7 @@ func TestBooksHandler_GetBooks(t *testing.T) {
 
 func TestBooksHandler_GetBook(t *testing.T) {
 	t.Run("invalid url", func(t *testing.T) {
-		runTest(func() {
+		it(func() {
 			validUuid := "invalid_path_url"
 			url := fmt.Sprintf("/%s/", validUuid)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -128,7 +123,7 @@ func TestBooksHandler_GetBook(t *testing.T) {
 	})
 
 	t.Run("valid url with valid uuid", func(t *testing.T) {
-		runTest(func() {
+		it(func() {
 			validUuid := "a-valid-uuid"
 			url := fmt.Sprintf("/%s/", validUuid)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -151,7 +146,7 @@ func TestBooksHandler_GetBook(t *testing.T) {
 	})
 
 	t.Run("valid uid with invalid uid", func(t *testing.T) {
-		runTest(func() {
+		it(func() {
 			invalidUid := "a-valid-uuid"
 			url := fmt.Sprintf("/%s/", invalidUid)
 			req, err := http.NewRequest(http.MethodGet, url, nil)

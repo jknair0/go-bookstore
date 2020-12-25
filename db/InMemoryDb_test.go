@@ -3,13 +3,13 @@ package db
 import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
+	beforeEach "github.com/jknair0/beforeeach"
 	"github.com/stretchr/testify/assert"
 	"tech.jknair/bookstore/db/schema"
-	"tech.jknair/bookstore/testutils"
 	"testing"
 )
 
-var RunTest func(func())
+var it = beforeEach.Create(setUp, tearDown)
 
 var subject *InMemoryDb
 
@@ -21,14 +21,8 @@ func tearDown() {
 	subject = nil
 }
 
-func TestMain(m *testing.M) {
-	RunTest = testutils.CreateForEach(setUp, tearDown)
-	m.Run()
-	RunTest = nil
-}
-
 func TestInMemoryDb_SaveBooks(t *testing.T) {
-	RunTest(func() {
+	it(func() {
 		assert.Len(t, subject.GetBooks(), 0)
 		if len(subject.GetBooks()) != 0 {
 			t.Errorf("initial list is supposed to be empty")
@@ -49,7 +43,7 @@ func createSampleBook() schema.BookSchema {
 }
 
 func TestInMemoryDb_DeleteBook(t *testing.T) {
-	RunTest(func() {
+	it(func() {
 		sampleBook := createSampleBook()
 		assert.Empty(t, subject.GetBooks())
 		savedUuid := subject.SaveBooks([]*schema.BookSchema{&sampleBook})
@@ -63,7 +57,7 @@ func TestInMemoryDb_DeleteBook(t *testing.T) {
 }
 
 func TestInMemoryDb_GetBook(t *testing.T) {
-	RunTest(func() {
+	it(func() {
 		sampleBook0 := createSampleBook()
 		sampleBook1 := createSampleBook()
 		sampleBook2 := createSampleBook()
@@ -87,7 +81,7 @@ func TestInMemoryDb_GetBook(t *testing.T) {
 }
 
 func TestInMemoryDb_UpdateBook(t *testing.T) {
-	RunTest(func() {
+	it(func() {
 		sampleBook0 := createSampleBook()
 		sampleBook1 := createSampleBook()
 		updatedBook := createSampleBook()
