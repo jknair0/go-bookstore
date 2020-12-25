@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"tech.jknair/bookstore/contants"
 	"tech.jknair/bookstore/db/schema"
+	"tech.jknair/bookstore/response"
 	"tech.jknair/bookstore/testutils"
 	"testing"
 )
@@ -45,7 +45,7 @@ func TestBooksHandler_AddBook(t *testing.T) {
 
 			responseBody := recorder.Body.String()
 			assert.Equal(t, http.StatusOK, recorder.Code)
-			expectedResponse := fmt.Sprintf(`["%s"]`, fakeUid)
+			expectedResponse := fmt.Sprintf(`{"data":["%s"], "error":null}`, fakeUid)
 			assert.JSONEq(t, responseBody, expectedResponse)
 		})
 	})
@@ -57,7 +57,7 @@ func TestBooksHandler_AddBook(t *testing.T) {
 			subject.router.ServeHTTP(recorder, r)
 
 			responseBody := recorder.Body.String()
-			expectedResponse := fmt.Sprintf(`{"data":null,"error":"%s"}`, contants.ErrInvalidRequestParams)
+			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrInvalidRequestParams.Encode())
 			assert.JSONEq(t, expectedResponse, responseBody)
 		})
 	})
@@ -70,7 +70,7 @@ func TestBooksHandler_AddBook(t *testing.T) {
 			subject.router.ServeHTTP(recorder, r)
 
 			responseBody := recorder.Body.String()
-			expectedResponse := fmt.Sprintf(`{"data":null,"error":"%s"}`, contants.ErrInvalidRequestParams)
+			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrInvalidRequestParams.Encode())
 			assert.JSONEq(t, expectedResponse, responseBody)
 		})
 	})
@@ -158,7 +158,7 @@ func TestBooksHandler_GetBook(t *testing.T) {
 
 			subject.router.ServeHTTP(recorder, req)
 
-			expectedResponse := fmt.Sprintf(`{"data":null,"error":"%s"}`, contants.ErrItemNotFound)
+			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrItemNotFound.Encode())
 			assert.JSONEq(t, expectedResponse, recorder.Body.String())
 		})
 	})

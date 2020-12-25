@@ -16,7 +16,5 @@ func TestBook_EncodeBook(t *testing.T) {
 	expectedJson := fmt.Sprintf(`{"uuid":"", "name":"%s", "author":"%s", "created_at":0}`, name, author)
 	actualJson := string(bookJsonBytes)
 
-	fmt.Printf(actualJson)
-
 	assert.JSONEq(t, expectedJson, actualJson)
 }
