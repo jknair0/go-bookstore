@@ -24,7 +24,12 @@ func (m *MockDatabase) GetBooks() []*schema.BookSchema {
 }
 
 func (m *MockDatabase) GetBook(uuid string) *schema.BookSchema {
-	panic("implement me")
+	args := m.Called(uuid)
+	book := args.Get(0)
+	if book == nil {
+		return nil
+	}
+	return book.(*schema.BookSchema)
 }
 
 func (m *MockDatabase) DeleteBook(uuid string) *schema.BookSchema {
