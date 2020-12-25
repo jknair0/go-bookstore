@@ -1,9 +1,9 @@
 package routing
 
 import (
-	"github.com/gorilla/mux"
-	"log"
+	muxHandlers "github.com/gorilla/handlers"
 	"net/http"
+	"os"
 )
 
 func ContentTypeMiddleWare(next http.Handler) http.Handler {
@@ -14,8 +14,5 @@ func ContentTypeMiddleWare(next http.Handler) http.Handler {
 }
 
 func LoggingMiddleWare(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		log.Printf("request: %#v - %#v", request.RequestURI, mux.Vars(request))
-		next.ServeHTTP(writer, request)
-	})
+	return muxHandlers.LoggingHandler(os.Stdout, next)
 }
