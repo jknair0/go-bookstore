@@ -1,6 +1,9 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"tech.jknair/bookstore/contants"
+)
 
 type ResponseHolder struct {
 	Data  interface{} `json:"data"`
@@ -21,7 +24,11 @@ func CreateErrorResponseHolder(error string) *ResponseHolder {
 	}
 }
 
-var UnknownErrorResponseHolder = CreateErrorResponseHolder(UNKNOWN_REASON_ERROR_MESSAGE)
+func ErrorResponseJson(error string) []byte {
+	return CreateErrorResponseHolder(error).EncodeJson()
+}
+
+var UnknownErrorResponseHolder = CreateErrorResponseHolder(contants.ErrUnknown)
 
 func (r *ResponseHolder) EncodeJson() []byte {
 	jsonStr, err := json.Marshal(r)
