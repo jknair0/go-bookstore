@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -36,34 +37,48 @@ func tearDown() {
 
 func TestBooksHandler_AddBook(t *testing.T) {
 	runTest(func() {
-		requestBody := []byte(`{"name":"Deep Work","author":"Carl Jung"}`)
-		r, _ := http.NewRequest(http.MethodPost, "/", bytes.NewBuffer(requestBody))
+		requestBody := bytes.NewBufferString(`{"name":"Deep Work","author":"Carl Jung"}`)
+		r, _ := http.NewRequest(http.MethodPost, RootRoute, requestBody)
 		recorder := httptest.NewRecorder()
+		fakeUid := uuid.New().String()
+		expectedArg := []*schema.BookSchema{ sampleBookSchema() }
+		mockDatabase.On("SaveBooks", expectedArg).Return([]string{fakeUid})
 
-		expectedArg := []*schema.BookSchema{{
-			Uuid:      "",
-			Name:      "Deep Work",
-			Author:    "Carl Jung",
-			CreatedAt: 0,
-		}}
-		mockDatabase.On("SaveBooks", expectedArg).Return([]string{"123"})
-		subject.addBook(recorder, r)
-		responseBody := recorder.Body.Bytes()
-		assert.Equal(t, http.StatusOK, recorder.Code, "invalid request code: %d", recorder.Code)
-		assert.NotEqual(t, 0, len(responseBody), "empty response body")
-		assert.Equal(t, string(responseBody), "[\"123\"]\n", "invalid response body: %s", string(responseBody))
+		subject.router.ServeHTTP(recorder, r)
+
+		responseBody := recorder.Body.String()
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		expectedResponse := fmt.Sprintf(`["%s"]`, fakeUid)
+		assert.JSONEq(t, responseBody, expectedResponse)
 	})
 }
 
 func TestBooksHandler_GetBooks(t *testing.T) {
-	runTest(func() {
-		r, _ := http.NewRequest(http.MethodGet, "/", bytes.NewBuffer([]byte{}))
-		recorder := httptest.NewRecorder()
-		mockDatabase.On("GetBooks").Return([]*schema.BookSchema{})
-		subject.listBooks(recorder, r)
-		responseBody := recorder.Body.Bytes()
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		assert.JSONEq(t, `{"data":[],"error":null}`, string(responseBody))
+	t.Run("empty books", func(t *testing.T) {
+		runTest(func() {
+			r, _ := http.NewRequest(http.MethodGet, RootRoute, nil)
+			recorder := httptest.NewRecorder()
+			mockDatabase.On("GetBooks").Return([]*schema.BookSchema{})
+
+			subject.router.ServeHTTP(recorder, r)
+
+			responseBody := recorder.Body.String()
+			assert.Equal(t, http.StatusOK, recorder.Code)
+			assert.JSONEq(t, `{"data":[],"error":null}`, responseBody)
+		})
+	})
+	t.Run("non empty books", func(t *testing.T) {
+		runTest(func() {
+			r, _ := http.NewRequest(http.MethodGet, RootRoute, nil)
+			recorder := httptest.NewRecorder()
+			mockDatabase.On("GetBooks").Return([]*schema.BookSchema{sampleBookSchema()})
+
+			subject.router.ServeHTTP(recorder, r)
+
+			responseBody := recorder.Body.String()
+			assert.Equal(t, http.StatusOK, recorder.Code)
+			assert.JSONEq(t, `{"data":[{"uuid":"","name":"Deep Work","author":"Carl Jung","created_at":0}],"error":null}`, responseBody)
+		})
 	})
 }
 
@@ -119,6 +134,7 @@ func TestBooksHandler_GetBook(t *testing.T) {
 			mockDatabase.On("GetBook", invalidUid).Return(nil)
 
 			subject.router.ServeHTTP(recorder, req)
+
 			expectedResponse := fmt.Sprintf(`{"data":null,"error":"%s"}`, model.ITEM_NOT_FOUND_ERROR_MESSAGE)
 			assert.JSONEq(t, expectedResponse, recorder.Body.String())
 		})
