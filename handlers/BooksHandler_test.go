@@ -18,21 +18,22 @@ var mockDatabase *testutils.MockDatabase
 var subject *BooksHandler
 var runTest func(func())
 
-func TestMain(m *testing.M) {
-	runTest = testutils.CreateForEach(setUp, tearDown)
-	m.Run()
-	runTest = nil
-}
-
 func setUp() {
 	mockDatabase = testutils.CreateMockDatabase()
-	subject = CreateBookHandler(mockDatabase, &mux.Router{})
+	muxRouter := mux.NewRouter()
+	subject = CreateBookHandler(mockDatabase, muxRouter)
 	subject.Initialize()
 }
 
 func tearDown() {
 	mockDatabase = nil
 	subject = nil
+}
+
+func TestMain(m *testing.M) {
+	runTest = testutils.CreateForEach(setUp, tearDown)
+	m.Run()
+	runTest = nil
 }
 
 func TestBooksHandler_AddBook(t *testing.T) {
