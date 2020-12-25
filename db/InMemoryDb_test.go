@@ -4,8 +4,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
 	beforeEach "github.com/jknair0/beforeeach"
+	"github.com/jknair0/bookstore/db/schema"
 	"github.com/stretchr/testify/assert"
-	"tech.jknair/bookstore/db/schema"
 	"testing"
 )
 

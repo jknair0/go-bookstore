@@ -1,10 +1,10 @@
 package mapper
 
 import (
+	"github.com/jknair0/bookstore/db/schema"
+	"github.com/jknair0/bookstore/model"
 	"github.com/stretchr/testify/assert"
 	"strconv"
-	"tech.jknair/bookstore/db/schema"
-	"tech.jknair/bookstore/model"
 	"testing"
 )
 

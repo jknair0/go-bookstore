@@ -1,8 +1,8 @@
 package response
 
 import (
+	"github.com/jknair0/bookstore/model"
 	"github.com/stretchr/testify/assert"
-	"tech.jknair/bookstore/model"
 	"testing"
 )
 

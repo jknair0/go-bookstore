@@ -2,7 +2,7 @@ package db
 
 import (
 	"github.com/google/uuid"
-	"tech.jknair/bookstore/db/schema"
+	"github.com/jknair0/bookstore/db/schema"
 	"time"
 )
 
