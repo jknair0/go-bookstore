@@ -3,6 +3,7 @@ package model
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 )
 
 type Book struct {
@@ -28,22 +29,20 @@ func EmptyBook() *Book {
 func DecodeBook(b []byte) (*Book, error) {
 	book := EmptyBook()
 	err := json.NewDecoder(bytes.NewBuffer(b)).Decode(book)
+	book.sanitizeValues()
 	if err != nil {
 		return nil, err
 	}
 	return book, nil
 }
 
-func (b *Book) EncodeBook() ([]byte, error) {
-	jsonBytes, err := json.Marshal(b)
-	if err != nil {
-		return nil, err
-	}
-	return jsonBytes, nil
+func (b *Book) sanitizeValues() {
+	b.Name = strings.TrimSpace(b.Name)
+	b.Author = strings.TrimSpace(b.Author)
 }
 
-func EncodeBooks(books []*Book) ([]byte, error) {
-	jsonBytes, err := json.Marshal(books)
+func (b *Book) EncodeBook() ([]byte, error) {
+	jsonBytes, err := json.Marshal(b)
 	if err != nil {
 		return nil, err
 	}

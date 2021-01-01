@@ -22,7 +22,7 @@ var it = beforeEach.Create(setUp, tearDown)
 func setUp() {
 	mockDatabase = testutils.CreateMockDatabase()
 	muxRouter := mux.NewRouter()
-	subject = CreateBookHandler(mockDatabase, muxRouter)
+	subject = NewBooksHandler(mockDatabase, muxRouter)
 	subject.Initialize()
 }
 
@@ -57,7 +57,7 @@ func TestBooksHandler_AddBook(t *testing.T) {
 			subject.router.ServeHTTP(recorder, r)
 
 			responseBody := recorder.Body.String()
-			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrInvalidRequestParams.Encode())
+			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrInvalidRequestBody.Encode())
 			assert.JSONEq(t, expectedResponse, responseBody)
 		})
 	})
@@ -70,7 +70,7 @@ func TestBooksHandler_AddBook(t *testing.T) {
 			subject.router.ServeHTTP(recorder, r)
 
 			responseBody := recorder.Body.String()
-			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrInvalidRequestParams.Encode())
+			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrInvalidRequestBody.Encode())
 			assert.JSONEq(t, expectedResponse, responseBody)
 		})
 	})

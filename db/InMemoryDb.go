@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/google/uuid"
 	"github.com/jknair0/bookstore/db/schema"
+	"github.com/lithammer/shortuuid/v3"
 	"time"
 )
 
@@ -19,7 +19,7 @@ func CreateInMemoryDb() *InMemoryDb {
 func (i *InMemoryDb) SaveBooks(books []*schema.BookSchema) []string {
 	booksUid := make([]string, len(books))
 	for index := range books {
-		uid := uuid.New().String()
+		uid := shortuuid.New()
 		books[index].Uuid = uid
 		books[index].CreatedAt = time.Now().Unix()
 		booksUid[index] = uid

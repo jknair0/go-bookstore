@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jknair0/bookstore/db"
 	"github.com/jknair0/bookstore/mapper"
@@ -11,19 +12,24 @@ import (
 	"strings"
 )
 
+const ItemSlug = "uuid"
+
 const RootRoute = "/"
-const ItemRoute = "/{uuid:[a-z0-9-]+}/"
+const ItemRoute = "/{" + ItemSlug + ":[a-zA-Z0-9]{1,50}}/"
+
+const InvalidNameMessage = "Invalid Name"
+const InvalidAuthorMessage = "Invalid Author"
 
 type BooksHandler struct {
-	database   db.Database
 	router     *mux.Router
+	database   db.Database
 	bookMapper *mapper.BookMapper
 }
 
-func CreateBookHandler(database db.Database, router *mux.Router) *BooksHandler {
+func NewBooksHandler(router *mux.Router, database db.Database) *BooksHandler {
 	return &BooksHandler{
-		database: database,
 		router:   router,
+		database: database,
 	}
 }
 
@@ -35,16 +41,22 @@ func (b *BooksHandler) Initialize() {
 
 func (b BooksHandler) getBook(writer http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	uuid := vars["uuid"]
-	writer.WriteHeader(http.StatusOK)
-	if len(vars) == 0 || len(uuid) == 0 {
+	if len(vars) == 0 {
 		writer.WriteHeader(http.StatusBadRequest)
-		response.WriteErrorResponse(writer, response.ErrInvalidRoute)
+		response.WriteErrorCodeResponse(writer, response.ErrInvalidRoute)
 		return
 	}
+	uuid := vars[ItemSlug]
+	if len(strings.TrimSpace(uuid)) == 0 {
+		writer.WriteHeader(http.StatusBadRequest)
+		response.WriteErrorCodeResponse(writer, response.ErrInvalidRoute)
+		return
+	}
+	writer.WriteHeader(http.StatusOK)
 	book := b.database.GetBook(uuid)
 	if book == nil {
-		response.WriteErrorResponse(writer, response.ErrItemNotFound)
+		errorMessage := fmt.Sprintf(`Item %s not found`, uuid)
+		response.WriteErrorCodeCustomMessageResponse(writer, response.ErrItemNotFound, errorMessage)
 		return
 	}
 	response.WriteSuccessResponse(writer, book)
@@ -60,27 +72,27 @@ func (b *BooksHandler) listBooks(writer http.ResponseWriter, _ *http.Request) {
 func (b *BooksHandler) addBook(w http.ResponseWriter, r *http.Request) {
 	body := r.Body
 	if body == nil {
-		response.WriteErrorResponse(w, response.ErrInvalidRequestParams)
+		response.WriteErrorCodeResponse(w, response.ErrInvalidRequestBody)
 		return
 	}
 	requestBody, err := ioutil.ReadAll(body)
 	if err != nil {
-		response.WriteErrorResponse(w, response.ErrServerError)
+		response.WriteErrorCodeResponse(w, response.ErrServerError)
 		return
 	}
-
 	newBook, err := model.DecodeBook(requestBody)
-
 	if err != nil {
-		response.WriteErrorResponse(w, response.ErrInvalidRequestParams)
+		response.WriteErrorCodeResponse(w, response.ErrInvalidRequestFormat)
 		return
 	}
-
-	if len(strings.TrimSpace(newBook.Name)) == 0 || len(strings.TrimSpace(newBook.Author)) == 0 {
-		response.WriteErrorResponse(w, response.ErrInvalidRequestParams)
+	if len(strings.TrimSpace(newBook.Name)) == 0 {
+		response.WriteErrorCodeCustomMessageResponse(w, response.ErrInvalidRequestFormat, InvalidNameMessage)
 		return
 	}
-
+	if  len(strings.TrimSpace(newBook.Author)) == 0 {
+		response.WriteErrorCodeCustomMessageResponse(w, response.ErrInvalidRequestFormat, InvalidAuthorMessage)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 	bookSchema := b.bookMapper.ToData(newBook)
 	uidArray := b.database.SaveBooks(bookSchema)

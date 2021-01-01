@@ -1,4 +1,4 @@
-package routing
+package middleware
 
 import (
 	muxHandlers "github.com/gorilla/handlers"

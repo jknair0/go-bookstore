@@ -3,14 +3,32 @@ package response
 import "encoding/json"
 
 type Error struct {
-	ErrorCode int    `json:"error_code"`
-	Message   string `json:"message"`
+	ErrorCode ApiErrorCode `json:"error_code"`
+	Message   string       `json:"message"`
 }
 
-func CreateError(errorCode int, message string) *Error {
+func NewError(code ApiErrorCode, message string) *Error {
+	return &Error{
+		ErrorCode: code,
+		Message:   message,
+	}
+}
+
+func NewUnknownError(err error) *Error {
+	return NewUnknownErrorFromMsg(err.Error())
+}
+
+func NewUnknownErrorFromMsg(message string) *Error {
+	return &Error{
+		ErrorCode: ErrUnknown,
+		Message:   message,
+	}
+}
+
+func NewErrorFromCode(errorCode ApiErrorCode) *Error {
 	return &Error{
 		ErrorCode: errorCode,
-		Message:   message,
+		Message:   ErrorMessage[errorCode],
 	}
 }
 
@@ -22,10 +40,22 @@ func (e *Error) Encode() []byte {
 	return jsonStr
 }
 
-var (
-	ErrUnknown              = CreateError(1, "Something went wrong")
-	ErrInvalidRoute         = CreateError(2, "Invalid Path")
-	ErrServerError          = CreateError(3, "Internal Server Error")
-	ErrInvalidRequestParams = CreateError(4, "Invalid Request Params")
-	ErrItemNotFound         = CreateError(5, "Item not found")
+type ApiErrorCode int
+
+const (
+	ErrUnknown ApiErrorCode = iota
+	ErrInvalidRoute
+	ErrServerError
+	ErrInvalidRequestFormat
+	ErrInvalidRequestBody
+	ErrItemNotFound
 )
+
+var ErrorMessage = map[ApiErrorCode]string{
+	ErrUnknown:              "Something went wrong",
+	ErrInvalidRoute:         "Invalid Path",
+	ErrServerError:          "Internal Server Error",
+	ErrInvalidRequestFormat: "Invalid Request Format",
+	ErrInvalidRequestBody:   "Invalid Request Body",
+	ErrItemNotFound:         "Item not found",
+}
