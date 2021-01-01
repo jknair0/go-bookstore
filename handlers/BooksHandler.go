@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jknair0/bookstore/db"
 	"github.com/jknair0/bookstore/mapper"
@@ -55,8 +54,7 @@ func (b BooksHandler) getBook(writer http.ResponseWriter, r *http.Request) {
 	writer.WriteHeader(http.StatusOK)
 	book := b.database.GetBook(uuid)
 	if book == nil {
-		errorMessage := fmt.Sprintf(`Item %s not found`, uuid)
-		response.WriteErrorCodeCustomMessageResponse(writer, response.ErrItemNotFound, errorMessage)
+		response.WriteErrorCodeResponse(writer, response.ErrItemNotFound)
 		return
 	}
 	response.WriteSuccessResponse(writer, book)
@@ -89,7 +87,7 @@ func (b *BooksHandler) addBook(w http.ResponseWriter, r *http.Request) {
 		response.WriteErrorCodeCustomMessageResponse(w, response.ErrInvalidRequestFormat, InvalidNameMessage)
 		return
 	}
-	if  len(strings.TrimSpace(newBook.Author)) == 0 {
+	if len(strings.TrimSpace(newBook.Author)) == 0 {
 		response.WriteErrorCodeCustomMessageResponse(w, response.ErrInvalidRequestFormat, InvalidAuthorMessage)
 		return
 	}

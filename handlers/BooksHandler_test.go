@@ -22,7 +22,7 @@ var it = beforeEach.Create(setUp, tearDown)
 func setUp() {
 	mockDatabase = testutils.CreateMockDatabase()
 	muxRouter := mux.NewRouter()
-	subject = NewBooksHandler(mockDatabase, muxRouter)
+	subject = NewBooksHandler(muxRouter, mockDatabase)
 	subject.Initialize()
 }
 
@@ -49,7 +49,7 @@ func TestBooksHandler_AddBook(t *testing.T) {
 			assert.JSONEq(t, responseBody, expectedResponse)
 		})
 	})
-	t.Run("empty request body", func(t *testing.T) {
+	t.Run("no request body", func(t *testing.T) {
 		it(func() {
 			r, _ := http.NewRequest(http.MethodPost, RootRoute, nil)
 			recorder := httptest.NewRecorder()
@@ -57,7 +57,8 @@ func TestBooksHandler_AddBook(t *testing.T) {
 			subject.router.ServeHTTP(recorder, r)
 
 			responseBody := recorder.Body.String()
-			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrInvalidRequestBody.Encode())
+			expectedResponse := fmt.Sprintf(
+				`{"data":null,"error":%s}`, response.NewErrorFromCode(response.ErrInvalidRequestBody).Encode())
 			assert.JSONEq(t, expectedResponse, responseBody)
 		})
 	})
@@ -70,7 +71,9 @@ func TestBooksHandler_AddBook(t *testing.T) {
 			subject.router.ServeHTTP(recorder, r)
 
 			responseBody := recorder.Body.String()
-			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrInvalidRequestBody.Encode())
+			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`,
+				response.NewError(response.ErrInvalidRequestFormat, InvalidNameMessage).Encode(),
+			)
 			assert.JSONEq(t, expectedResponse, responseBody)
 		})
 	})
@@ -124,7 +127,7 @@ func TestBooksHandler_GetBook(t *testing.T) {
 
 	t.Run("valid url with valid uuid", func(t *testing.T) {
 		it(func() {
-			validUuid := "a-valid-uuid"
+			validUuid := "a1valid2UuId"
 			url := fmt.Sprintf("/%s/", validUuid)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
 			if err != nil {
@@ -140,14 +143,14 @@ func TestBooksHandler_GetBook(t *testing.T) {
 			assert.Len(t, expectedCalls, 1)
 			getBookCall := expectedCalls[0]
 			assert.Equal(t, validUuid, getBookCall.Arguments.String(0))
-			assert.Equal(t, recorder.Code, http.StatusOK)
+			assert.Equal(t, http.StatusOK, recorder.Code)
 			assert.JSONEq(t, `{"data":{"Uuid":"","Name":"Deep Work","Author":"Carl Jung","CreatedAt":0},"error":null}`, recorder.Body.String())
 		})
 	})
 
-	t.Run("valid uid with invalid uid", func(t *testing.T) {
+	t.Run("valid url format with invalid uid", func(t *testing.T) {
 		it(func() {
-			invalidUid := "a-valid-uuid"
+			invalidUid := "a1valid2UuId"
 			url := fmt.Sprintf("/%s/", invalidUid)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
 			if err != nil {
@@ -158,7 +161,7 @@ func TestBooksHandler_GetBook(t *testing.T) {
 
 			subject.router.ServeHTTP(recorder, req)
 
-			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.ErrItemNotFound.Encode())
+			expectedResponse := fmt.Sprintf(`{"data":null,"error":%s}`, response.NewErrorFromCode(response.ErrItemNotFound).Encode())
 			assert.JSONEq(t, expectedResponse, recorder.Body.String())
 		})
 	})
