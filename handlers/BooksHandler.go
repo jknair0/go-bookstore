@@ -14,7 +14,7 @@ import (
 const ItemSlug = "uuid"
 
 const RootRoute = "/"
-const ItemRoute = "/{" + ItemSlug + ":[a-zA-Z0-9]{1,50}}/"
+const ItemRoute = "/{" + ItemSlug + ":[a-zA-Z0-9]{1,50}}"
 
 const InvalidNameMessage = "Invalid Name"
 const InvalidAuthorMessage = "Invalid Author"

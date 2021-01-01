@@ -128,7 +128,7 @@ func TestBooksHandler_GetBook(t *testing.T) {
 	t.Run("valid url with valid uuid", func(t *testing.T) {
 		it(func() {
 			validUuid := "a1valid2UuId"
-			url := fmt.Sprintf("/%s/", validUuid)
+			url := fmt.Sprintf("/%s", validUuid)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
 			if err != nil {
 				t.Fatal(err)
@@ -151,7 +151,7 @@ func TestBooksHandler_GetBook(t *testing.T) {
 	t.Run("valid url format with invalid uid", func(t *testing.T) {
 		it(func() {
 			invalidUid := "a1valid2UuId"
-			url := fmt.Sprintf("/%s/", invalidUid)
+			url := fmt.Sprintf("/%s", invalidUid)
 			req, err := http.NewRequest(http.MethodGet, url, nil)
 			if err != nil {
 				t.Fatal(err)
