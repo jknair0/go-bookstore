@@ -25,11 +25,14 @@ func main() {
 	staticFileServer := http.FileServer(http.Dir("./static"))
 	rootRouter.Handle("/", staticFileServer)
 
-	// apis
-	apiRouter := rootRouter.PathPrefix("/api/").Subrouter()
+	// '/api' route
+	apiRouter := rootRouter.PathPrefix("/api").Subrouter()
 	apiRouter.Use(middleware.ContentTypeMiddleWare)
-	// books route
-	setUpBooksRouter(apiRouter.PathPrefix("/books/").Subrouter(), bookInMemoryDb)
+
+	initHandlers(
+		// '/books' route
+		handlers.NewBooksHandler(apiRouter.PathPrefix("/books").Subrouter(), bookInMemoryDb),
+	)
 
 	http.Handle("/", rootRouter)
 	err := http.ListenAndServe(hostAddress, nil)
@@ -38,7 +41,8 @@ func main() {
 	}
 }
 
-func setUpBooksRouter(router *mux.Router, database db.Database)  {
-	booksHandler := handlers.NewBooksHandler(router, database)
-	booksHandler.Initialize()
+func initHandlers(handlers ...handlers.AppHandler) {
+	for _, handler := range handlers {
+		handler.Initialize()
+	}
 }
